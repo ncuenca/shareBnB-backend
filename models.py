@@ -84,6 +84,39 @@ class User(db.Model):
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
 
+    @classmethod
+    def signup(cls, username, email, password, first_name, last_name, phone):
+        """Sign up user.
+
+        Hashes password and adds user to system.
+        """
+
+        hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
+
+        user = User(
+            username=username,
+            password=hashed_pwd,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=phone,
+        )
+
+        db.session.add(user)
+        db.session.commit()
+        return user
+    
+    def serialize(self): 
+        """Serializes self to dictionary."""
+
+        return {
+            "username": self.username,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "phone": self.phone,
+        }
+
 
 class Message(db.Model):
     """A private message between users."""
@@ -157,6 +190,20 @@ class Listing(db.Model):
         db.ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False,
     )
+
+    def serialize(self): 
+        """ Serializes class instance to dictionary. """
+
+        return {
+            "id": self.id,
+            "title": self.title,
+            "price": self.price,
+            "details": self.details,
+            "address": self.address,
+            "host": self.host,
+        }
+
+
 
 
 class ListingPhoto(db.Model):
