@@ -24,7 +24,7 @@ connect_db(app)
 ##############################################################################
 # Listing Routes
 
-@app.route('/listings')
+@app.route('/users')
 def get_listings():
     """If search term included, gets filtered listings. Otherwise,
         gets all listings.
@@ -108,5 +108,31 @@ def sign_up():
         return(jsonify(error=error))
     
     return (jsonify(user=user.serialize()))
+
+@app.route('/users')
+def get_users():
+    """If search term included, gets filtered users. Otherwise,
+        gets all users.
+    """
+
+    search = request.args.get('q')
+
+    if not search: 
+        users = User.query.all()
+    else: 
+        users = User.query.filter(User.username.like(f"%{search}%")).all()
+
+    serialized = [user.serialize() for user in users]
+    return (jsonify(users=serialized))
+
+@app.route('/users/<int:id>')
+def get_user(id): 
+    """Gets user by id."""
+
+    user = User.query.get_or_404(id)
+
+    serialized = user.serialize()
+
+    return (jsonify(serialized))
 
 
