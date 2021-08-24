@@ -158,7 +158,32 @@ class Listing(db.Model):
         nullable=False,
     )
 
-    photo_urls = db.Column(
-        db.Text,
-        nullable=True,
+
+class ListingPhoto(db.Model):
+    """A photo within a listing."""
+
+    __tablename__ = "listing_photos"
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+        nullable=False,
     )
+
+    listing_id = db.Column(
+        db.Integer, 
+        db.ForeignKey('listings.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+
+    url = db.Column(
+        db.Text,
+        nullable=False,
+    )
+
+    listing = db.relationship(
+        'Listing',
+        backref='photos'
+    )
+
+

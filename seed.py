@@ -2,7 +2,7 @@
 
 from csv import DictReader
 from app import db
-from models import User, Message, Listing
+from models import User, Message, Listing, ListingPhoto
 
 db.drop_all()
 db.create_all()
@@ -15,5 +15,8 @@ with open('generator/messages.csv') as messages:
 
 with open('generator/listings.csv') as listings:
     db.session.bulk_insert_mappings(Listing, DictReader(listings))
+
+with open('generator/listing_photos.csv') as listing_photos:
+    db.session.bulk_insert_mappings(ListingPhoto, DictReader(listing_photos))
 
 db.session.commit()

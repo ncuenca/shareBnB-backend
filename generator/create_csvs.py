@@ -1,13 +1,13 @@
 import csv
-from random import choice, randint, sample
+from random import sample, choice
 from itertools import permutations
-import requests
 from faker import Faker
 from helpers import get_random_datetime
 
 USERS_CSV_HEADERS = ['email', 'username', 'password', 'phone', 'first_name', 'last_name']
 MESSAGES_CSV_HEADERS = ['text', 'to_user_id', 'from_user_id', 'timestamp']
-LISTINGS_CSV_HEADERS = ['photo_urls', 'address', 'title', 'details', 'host', 'price']
+LISTINGS_CSV_HEADERS = ['address', 'title', 'details', 'host', 'price']
+LISTING_PHOTOS_CSV_HEADERS = ['listing_id', 'url']
 
 MAX_MESSAGE_LENGTH = 150
 MAX_TITLE_LENGTH = 20
@@ -16,6 +16,7 @@ MAX_DETAILS_LENGTH = 150
 NUM_USERS = 300
 NUM_MESSAGES = 500
 NUM_LISTINGS = 100
+NUM_LISTING_PHOTOS = 100
 
 fake = Faker('en_US')
 
@@ -31,12 +32,12 @@ with open('generator/users.csv', 'w') as users_csv:
 
     for i in range(NUM_USERS):
         users_writer.writerow(dict(
-            email=fake.email(),
+            email=fake.unique.email(),
             username=fake.unique.user_name(),
             first_name=fake.first_name(),
             last_name=fake.last_name(),
             password='$2b$12$Q1PUFjhN/AWRQ21LbGYvjeLpZZB6lfZ1BPwifHALGO6oIbyC3CmJe',
-            phone=fake.phone_number()
+            phone=fake.unique.phone_number()
         ))
 
 with open('generator/messages.csv', 'w') as messages_csv:
@@ -59,9 +60,18 @@ with open('generator/listings.csv', 'w') as listings_csv:
     for i in range(NUM_LISTINGS): 
         listings_writer.writerow(dict(
             price=fake.random_int(min=0, max=500),
-            photo_urls=choice(image_urls),
             host=fake.random_int(min=1, max=NUM_USERS),
             details=fake.paragraph()[:MAX_DETAILS_LENGTH],
             title=fake.sentence(nb_words=5),
             address=fake.address(),
+        ))
+
+with open('generator/listing_photos.csv', 'w') as listing_photos_csv: 
+    listing_photos_writer = csv.DictWriter(listing_photos_csv, fieldnames=LISTING_PHOTOS_CSV_HEADERS)
+    listing_photos_writer.writeheader()
+
+    for i in range(NUM_LISTING_PHOTOS): 
+        listing_photos_writer.writerow(dict(
+            listing_id=fake.random_int(min=1, max=NUM_LISTINGS),
+            url=choice(image_urls)
         ))

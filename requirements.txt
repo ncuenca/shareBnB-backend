@@ -1,4 +1,6 @@
 bcrypt==3.2.0
+boto3==1.18.28
+botocore==1.21.28
 certifi==2021.5.30
 cffi==1.14.6
 charset-normalizer==2.0.4
@@ -11,13 +13,17 @@ greenlet==1.1.1
 idna==3.2
 itsdangerous==2.0.1
 Jinja2==3.0.1
+jmespath==0.10.0
 MarkupSafe==2.0.1
 psycopg2==2.9.1
 pycparser==2.20
 python-dateutil==2.8.2
 requests==2.26.0
+s3transfer==0.5.0
 six==1.16.0
 SQLAlchemy==1.4.23
+SQLAlchemy-ImageAttach==1.1.0
 text-unidecode==1.3
 urllib3==1.26.6
+Wand==0.6.7
 Werkzeug==2.0.1
