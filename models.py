@@ -8,6 +8,15 @@ from flask_sqlalchemy import SQLAlchemy
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
+def connect_db(app):
+    """Connect this database to provided Flask app.
+
+    You should call this in your Flask app.
+    """
+
+    db.app = app
+    db.init_app(app)
+
 
 class User(db.Model): 
     """ User in the system. """
@@ -87,7 +96,7 @@ class Message(db.Model):
     )
 
     text = db.Column(
-        db.String(140),
+        db.Text,
         nullable=False,
     )
 
@@ -124,7 +133,7 @@ class Listing(db.Model):
     )
 
     title = db.Column(
-        db.String(20),
+        db.Text,
         nullable=False,
     )
 
@@ -134,7 +143,7 @@ class Listing(db.Model):
     )
 
     details = db.Column(
-        db.String(150),
+        db.Text,
         nullable=False,
     )
 

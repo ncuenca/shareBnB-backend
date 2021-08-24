@@ -32,7 +32,7 @@ with open('generator/users.csv', 'w') as users_csv:
     for i in range(NUM_USERS):
         users_writer.writerow(dict(
             email=fake.email(),
-            username=fake.user_name(),
+            username=fake.unique.user_name(),
             first_name=fake.first_name(),
             last_name=fake.last_name(),
             password='$2b$12$Q1PUFjhN/AWRQ21LbGYvjeLpZZB6lfZ1BPwifHALGO6oIbyC3CmJe',
