@@ -71,18 +71,18 @@ class User(db.Model):
         backref='host'
     )
 
-    incoming_messages = db.relationship(
-        "Message",
-        backref='to_user'
-    )
+    # incoming_messages = db.relationship(
+    #     "Message",
+    #     backref='to_user'
+    # )
 
-    outgoing_messages = db.relationship(
-        "Message",
-        backref='from_user'
-    )
+    # outgoing_messages = db.relationship(
+    #     "Message",
+    #     backref='from_user'
+    # )
 
     def __repr__(self):
-        return f"<User #{self.id}: {self.username}, {self.email}>"
+        return f"<User #{self.id}: {self.username}, {self.email}, {self.id}, >"
 
     @classmethod
     def signup(cls, username, email, password, first_name, last_name, phone):
@@ -105,6 +105,21 @@ class User(db.Model):
         db.session.add(user)
         db.session.commit()
         return user
+
+    @classmethod
+    def authenticate(cls, username, password):
+        """Find user with `username` and `password`.
+        If can't find matching user (or if password is wrong), returns False.
+        """
+
+        user = cls.query.filter_by(username=username).first()
+
+        if user:
+            is_auth = bcrypt.check_password_hash(user.password, password)
+            if is_auth:
+                return user
+
+        return False
     
     def serialize(self): 
         """Serializes self to dictionary."""
@@ -118,41 +133,41 @@ class User(db.Model):
         }
 
 
-class Message(db.Model):
-    """A private message between users."""
+# class Message(db.Model):
+#     """A private message between users."""
 
-    __tablename__ = 'messages'
+#     __tablename__ = 'messages'
 
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-    )
+#     id = db.Column(
+#         db.Integer,
+#         primary_key=True,
+#     )
 
-    text = db.Column(
-        db.Text,
-        nullable=False,
-    )
+#     text = db.Column(
+#         db.Text,
+#         nullable=False,
+#     )
 
-    timestamp = db.Column(
-        db.DateTime,
-        nullable=False,
-        default=datetime.utcnow,
-    )
+#     timestamp = db.Column(
+#         db.DateTime,
+#         nullable=False,
+#         default=datetime.utcnow,
+#     )
 
-    to_user_id = db.Column(
-        db.Integer,
-        db.ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False,
-    )
+#     to_user_id = db.Column(
+#         db.Integer,
+#         db.ForeignKey('users.id', ondelete='CASCADE'),
+#         nullable=False,
+#     )
 
-    from_user_id = db.Column(
-        db.Integer,
-        db.ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False,
-    )
+#     from_user_id = db.Column(
+#         db.Integer,
+#         db.ForeignKey('users.id', ondelete='CASCADE'),
+#         nullable=False,
+#     )
 
-    def __repr__(self):
-        return f"<Message #{self.id}: {self.text} by {self.user_id}>"
+#     def __repr__(self):
+#         return f"<Message #{self.id}: {self.text} by {self.user_id}>"
 
 
 class Listing(db.Model):
@@ -185,7 +200,7 @@ class Listing(db.Model):
         nullable=False,
     )
 
-    host = db.Column(
+    host_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False,
@@ -200,7 +215,7 @@ class Listing(db.Model):
             "price": self.price,
             "details": self.details,
             "address": self.address,
-            "host": self.host,
+            "host_id": self.host_id,
         }
 
 

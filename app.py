@@ -1,8 +1,9 @@
 import os
 
 from flask import Flask, request, jsonify
-from models import db, connect_db, User, Message, Listing, ListingPhoto
+from models import db, connect_db, User, Listing, ListingPhoto
 from sqlalchemy.exc import IntegrityError
+import jwt
 
 
 database_url = os.environ.get('DATABASE_URL', 'postgresql:///sharebnb')
@@ -16,15 +17,52 @@ app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "super secret secret key")
 
 connect_db(app)
 
 
 ##############################################################################
+# Auth Routes / Functions
+
+@app.route('/login')
+def login():
+    username = request.json('username')
+    password = request.json('password')
+    
+    user = User.authenticate(username, password)
+    if user:
+        token = createJWT(user)
+        return (jsonify(user=user.serialize(),token=token))
+    return jsonify(error='Invalid login'), 401
+
+def createJWT(user):
+    """ Creates JWT token with username and admin in payload. """
+    payload = { 'username':user.username, 'is_admin':user.is_admin }
+    token = jwt.encode(payload, app.config.get('SECRET_KEY'), algorithm='HS256')
+    return token
+
+def authenticateJWT():
+    """ Verifies that JWT is valid. """
+    auth_headers = request.headers.get('Authorization', '').split()
+    if len(auth_headers) != 2:
+        return None
+    try:
+        token = auth_headers[1]
+        data = jwt.decode(token, app.config.get('SECRET_KEY'), algorithms='HS256')
+        user = User.query.filter(User.username.like((data['username']))).one_or_none()
+        if user:
+            return user
+    except jwt.ExpiredSignatureError:
+        return None
+    except (jwt.InvalidTokenError, Exception) as e:
+        return None
+    return None
+
+##############################################################################
 # Listing Routes
 
-@app.route('/users')
+@app.route('/listings')
 def get_listings():
     """If search term included, gets filtered listings. Otherwise,
         gets all listings.
@@ -47,27 +85,30 @@ def add_listing():
 
     Create new listing and add to DB.
     """
+    user = authenticateJWT()
+    if user:
+        title = request.json["title"]
+        price = request.json["price"]
+        address = request.json["address"]
+        details = request.json["details"]
 
-    title = request.json["title"]
-    price = request.json["price"]
-    address = request.json["address"]
-    details = request.json["details"]
-    host = request.json["host"]
+        new_listing = Listing(
+            title=title,
+            price=price,
+            address=address,
+            details=details,
+            host_id=user.id,
+        )
 
-    new_listing = Listing(
-        title=title,
-        price=price,
-        address=address,
-        details=details,
-        host=host,
-    )
+        db.session.add(new_listing)
+        db.session.commit()
+        print('here ########################################')
+        print(new_listing)
+        serialized = new_listing.serialize()
 
-    db.session.add(new_listing)
-    db.session.commit()
+        return (jsonify(listing=serialized), 201)
 
-    serialized = new_listing.serialize()
-
-    return (jsonify(listing=serialized), 201)
+    return jsonify(error='Must be logged in'), 401
 
 
 @app.route('/listings/<int:id>')
@@ -78,7 +119,7 @@ def get_listing(id):
 
     serialized = listing.serialize()
 
-    return(jsonify(serialized))
+    return (jsonify(serialized))
 
 
 ##############################################################################
@@ -95,6 +136,10 @@ def sign_up():
     email = request.json["email"]
     phone = request.json["phone"]
 
+    duplicate_check = User.query.filter(User.username.like(username)).one_or_none()
+    if duplicate_check:
+        return jsonify(error='Username taken'), 400
+
     try: 
         user = User.signup(
                 username=username,
@@ -104,10 +149,13 @@ def sign_up():
                 email=email,
                 phone=phone,
             )
+        token = createJWT(user)
+        return jsonify(user=user.serialize(), token=token)
+
     except IntegrityError as error:
-        return(jsonify(error=error))
+        return (jsonify(error=error))
     
-    return (jsonify(user=user.serialize()))
+    
 
 @app.route('/users')
 def get_users():
