@@ -219,6 +219,7 @@ class Listing(db.Model):
             "details": self.details,
             "address": self.address,
             "host_id": self.host_id,
+            "photos": [photo.serialize() for photo in self.photos],
         }
 
 
@@ -252,3 +253,11 @@ class ListingPhoto(db.Model):
     )
 
 
+    def serialize(self): 
+        """Serializes instance."""
+
+        return {
+            "id": self.id,
+            "listing_id": self.listing_id,
+            "url": self.url,
+        }
