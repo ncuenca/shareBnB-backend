@@ -3,6 +3,7 @@ import os
 from flask import Flask, request, jsonify
 from models import db, connect_db, User, Listing, ListingPhoto
 from sqlalchemy.exc import IntegrityError
+from flask_cors import CORS
 import jwt
 
 
@@ -12,6 +13,7 @@ database_url = os.environ.get('DATABASE_URL', 'postgresql:///sharebnb')
 database_url = database_url.replace('postgres://', 'postgresql://')
 
 app = Flask(__name__)
+CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -182,5 +184,4 @@ def get_user(id):
     serialized = user.serialize()
 
     return (jsonify(serialized))
-
 
