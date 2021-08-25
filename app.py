@@ -4,6 +4,8 @@ from flask import Flask, request, jsonify
 from models import db, connect_db, User, Listing, ListingPhoto
 from sqlalchemy.exc import IntegrityError
 from flask_cors import CORS
+from werkzeug.security import secure_filename
+from helpers import upload_file_to_s3
 import jwt
 
 
@@ -89,6 +91,14 @@ def add_listing():
     """
     user = authenticateJWT()
     if user:
+
+        file = request.files["photos"]
+
+        file.filename = secure_filename(file.filename)
+        output = upload_file_to_s3(file, app.config["S3_BUCKET"])
+        photos = str(output)
+        print("PHOTOS AFTER UPLOAD", photos)
+
         title = request.json["title"]
         price = request.json["price"]
         address = request.json["address"]
