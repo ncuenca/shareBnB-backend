@@ -256,7 +256,7 @@ def send_message(id):
 @app.route('/messages')
 def get_messages():
     """Get all of current user's messages."""
-
+    # breakpoint()
     curr_user = authenticateJWT()
     if curr_user:
         msgs = Message.query.filter((Message.from_user_id == curr_user.id) | (Message.to_user_id == curr_user.id)).all()

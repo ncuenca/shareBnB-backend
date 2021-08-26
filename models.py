@@ -128,6 +128,7 @@ class User(db.Model):
         """Serializes self to dictionary."""
 
         return {
+            "id": self.id,
             "username": self.username,
             "first_name": self.first_name,
             "last_name": self.last_name,
@@ -178,7 +179,9 @@ class Message(db.Model):
             'text':self.text,
             'timestamp':self.timestamp,
             'to_user_id':self.to_user_id,
+            'to_user': self.to_user.serialize(),
             'from_user_id':self.from_user_id,
+            'from_user': self.from_user.serialize(),
         }
 
 
