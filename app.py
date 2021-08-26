@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from flask_cors import CORS
 # from werkzeug.security import secure_filename
 from helpers import upload_file_to_s3
+from my_secrets import S3_BUCKET
 import jwt
 
 
@@ -89,21 +90,20 @@ def add_listing():
 
     Create new listing and add to DB.
     """
+    
     user = authenticateJWT()
-    # breakpoint()
     if user:
         breakpoint()
         file = request.files["photo"]
 
-        # file.filename = secure_filename(file.filename)
-        output = upload_file_to_s3(file, app.config["S3_BUCKET"])
+        output = upload_file_to_s3(file, S3_BUCKET)
         photos = str(output)
         print("PHOTOS AFTER UPLOAD", photos)
 
-        title = request.json["title"]
-        price = request.json["price"]
-        address = request.json["address"]
-        details = request.json["details"]
+        title = request.form.getlist("title")[0]
+        price = request.form.getlist("price")[0]
+        address = request.form.getlist("address")[0]
+        details = request.form.getlist("details")[0]
 
         new_listing = Listing(
             title=title,
