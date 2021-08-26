@@ -180,8 +180,24 @@ def sign_up():
 
     except IntegrityError as error:
         return (jsonify(error=error))
-    
-    
+
+
+@app.route('/login', methods=["POST"])
+def login(): 
+    """Authenticates user and, if valid credentials, returns token."""
+
+    username = request.json["username"]
+    password = request.json["password"]
+
+    user = User.authenticate(username, password)
+
+    if user: 
+        token = createJWT(user)
+        return jsonify(user=user.serialize(), token=token)
+    else: 
+        return ("Invalid login", 400)
+
+
 
 @app.route('/users')
 def get_users():
