@@ -172,6 +172,16 @@ class Message(db.Model):
     def __repr__(self):
         return f"<Message #{self.id}: {self.text} by {self.user_id}>"
 
+    def serialize(self):
+        return {
+            'id':self.id,
+            'text':self.text,
+            'timestamp':self.timestamp,
+            'to_user_id':self.to_user_id,
+            'from_user_id':self.from_user_id,
+        }
+
+
 
 class Listing(db.Model):
     """A listing in the system."""

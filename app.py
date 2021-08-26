@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, request, jsonify
-from models import db, connect_db, User, Listing, ListingPhoto
+from models import Message, db, connect_db, User, Listing, ListingPhoto
 from sqlalchemy.exc import IntegrityError
 from flask_cors import CORS
 # from werkzeug.security import secure_filename
@@ -229,3 +229,57 @@ def get_user(id):
 
     return (jsonify(user=serialized))
 
+##############################################################################
+# Message Routes
+
+@app.route('/messages/<int:id>', methods=['POST'])
+def send_message(id):
+    """Send message to user with id."""
+
+    text = request.json['message']
+    curr_user = authenticateJWT()
+    if curr_user:
+        msg = Message(
+            text=text,
+            to_user_id=id,
+            from_user_id=curr_user.id
+        )
+
+        db.session.add(msg)
+        db.session.commit()
+
+        return jsonify(msg=msg.serialize())
+    
+    else:
+        return jsonify(error='Unauthorized'), 401
+
+@app.route('/messages')
+def get_messages():
+    """Get all of current user's messages."""
+
+    curr_user = authenticateJWT()
+    if curr_user:
+        msgs = Message.query.filter((Message.from_user_id == curr_user.id) | (Message.to_user_id == curr_user.id)).all()
+        serialized = [msg.serialize() for msg in msgs]
+        return jsonify(msgs=serialized)
+    
+    else:
+        return jsonify(error='Unauthorized'), 401
+
+@app.route('/messages/<int:id>')
+def get_conversion_with_user(id):
+    """Get current user's messages to or from user with id."""
+
+    curr_user = authenticateJWT()
+    if curr_user:
+        msgs = Message.query.filter(
+            (
+                ((Message.from_user_id == curr_user.id) | (Message.to_user_id == curr_user.id))
+                &
+                ((Message.from_user_id == id) | (Message.to_user_id == id)))
+            ).all()
+        serialized = [msg.serialize() for msg in msgs]
+        return jsonify(msgs=serialized)
+    
+    else:
+        return jsonify(error='Unauthorized'), 401
