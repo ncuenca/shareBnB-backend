@@ -79,7 +79,7 @@ def get_listings():
     if not search: 
         listings = Listing.query.all()
     else: 
-        listings = Listing.query.filter(Listing.title.like(f"%{search}%")).all()
+        listings = Listing.query.filter(Listing.address.ilike(f"%{search}%")).all()
 
     serialized = [listing.serialize() for listing in listings]
     return (jsonify(listings=serialized))
