@@ -3,6 +3,8 @@ from random import sample, choice
 from itertools import permutations
 from faker import Faker
 from helpers import get_random_datetime
+import json
+import requests
 
 USERS_CSV_HEADERS = ['email', 'username', 'password', 'phone', 'first_name', 'last_name']
 MESSAGES_CSV_HEADERS = ['text', 'to_user_id', 'from_user_id', 'timestamp']
@@ -19,6 +21,21 @@ NUM_LISTINGS = 100
 NUM_LISTING_PHOTOS = 500
 
 fake = Faker('en_US')
+
+# headers = {
+#     "Accept-Version": "v1",
+#     "Authorization": f"Client-ID YSZok6K_4a2oifZn54hCPg7qudyv_qG-P595MjRpcgI"
+# }
+
+# payload = {
+#     "query": "backyard",
+#     "page": "5",
+#     "per_page": "10",
+# }
+
+# images_resp = requests.get("https://api.unsplash.com/search/photos", params=payload, headers=headers)
+# images = images_resp.json()
+# print(images)
 
 image_urls = [
     f"https://randomuser.me/api/portraits/{kind}/{i}.jpg"
@@ -73,4 +90,5 @@ with open('generator/listing_photos.csv', 'w') as listing_photos_csv:
         listing_photos_writer.writerow(dict(
             listing_id=fake.random_int(min=1, max=NUM_LISTINGS),
             url=choice(image_urls)
+            # url=choice(images["results"])["urls"]["raw"]
         ))

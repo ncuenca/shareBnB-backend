@@ -73,7 +73,7 @@ def get_listings():
         gets all listings.
     """
 
-    search = request.args.get('q')
+    search = request.args.get('term')
 
     if not search: 
         listings = Listing.query.all()
