@@ -277,7 +277,7 @@ def get_conversion_with_user(id):
                 ((Message.from_user_id == curr_user.id) | (Message.to_user_id == curr_user.id))
                 &
                 ((Message.from_user_id == id) | (Message.to_user_id == id)))
-            ).all()
+            ).order_by("timestamp").all()
         serialized = [msg.serialize() for msg in msgs]
         return jsonify(msgs=serialized)
     
