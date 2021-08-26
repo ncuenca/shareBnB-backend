@@ -30,10 +30,11 @@ connect_db(app)
 ##############################################################################
 # Auth Routes / Functions
 
-@app.route('/login')
+@app.route('/login', methods=['POST'])
 def login():
-    username = request.json('username')
-    password = request.json('password')
+    # breakpoint()
+    username = request.json['username']
+    password = request.json['password']
     
     user = User.authenticate(username, password)
     if user:
@@ -182,20 +183,20 @@ def sign_up():
         return (jsonify(error=error))
 
 
-@app.route('/login', methods=["POST"])
-def login(): 
-    """Authenticates user and, if valid credentials, returns token."""
+# @app.route('/login', methods=["POST"])
+# def login(): 
+#     """Authenticates user and, if valid credentials, returns token."""
 
-    username = request.json["username"]
-    password = request.json["password"]
+#     username = request.json["username"]
+#     password = request.json["password"]
 
-    user = User.authenticate(username, password)
+#     user = User.authenticate(username, password)
 
-    if user: 
-        token = createJWT(user)
-        return jsonify(user=user.serialize(), token=token)
-    else: 
-        return ("Invalid login", 400)
+#     if user: 
+#         token = createJWT(user)
+#         return jsonify(user=user.serialize(), token=token)
+#     else: 
+#         return ("Invalid login", 400)
 
 
 
@@ -209,11 +210,14 @@ def get_users():
 
     if not search: 
         users = User.query.all()
+        serialized = [user.serialize() for user in users]
+        return (jsonify(users=serialized))
     else: 
-        users = User.query.filter(User.username.like(f"%{search}%")).all()
+        user = User.query.filter(User.username.like(f"{search}")).one_or_none()
+        serialized = user.serialize()
+        return (jsonify(user=serialized))
 
-    serialized = [user.serialize() for user in users]
-    return (jsonify(users=serialized))
+    
 
 @app.route('/users/<int:id>')
 def get_user(id): 
