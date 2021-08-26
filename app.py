@@ -93,12 +93,18 @@ def add_listing():
     
     user = authenticateJWT()
     if user:
-        breakpoint()
-        file = request.files["photo"]
+        img_urls = []
+        for key in request.files:
+            file = request.files.get(key)
+            output = upload_file_to_s3(file, S3_BUCKET)
+            img_urls.append(output)
+        # print(img_urls)
+        # breakpoint()
+        # file = request.files["photo"]
 
         output = upload_file_to_s3(file, S3_BUCKET)
-        photos = str(output)
-        print("PHOTOS AFTER UPLOAD", photos)
+        # photos = str(output)
+        # print("PHOTOS AFTER UPLOAD", photos)
 
         title = request.form.getlist("title")[0]
         price = request.form.getlist("price")[0]
@@ -115,8 +121,15 @@ def add_listing():
 
         db.session.add(new_listing)
         db.session.commit()
-        print('here ########################################')
-        print(new_listing)
+
+        for img_url in img_urls:
+            new_listing_photo = ListingPhoto(
+                listing_id=new_listing.id,
+                url=img_url,
+            )
+            db.session.add(new_listing_photo)
+            db.session.commit()
+        
         serialized = new_listing.serialize()
 
         return (jsonify(listing=serialized), 201)
@@ -132,7 +145,7 @@ def get_listing(id):
 
     serialized = listing.serialize()
 
-    return (jsonify(serialized))
+    return (jsonify(listing=serialized))
 
 
 ##############################################################################
@@ -194,5 +207,5 @@ def get_user(id):
 
     serialized = user.serialize()
 
-    return (jsonify(serialized))
+    return (jsonify(user=serialized))
 
