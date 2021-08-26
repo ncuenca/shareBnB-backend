@@ -102,7 +102,7 @@ def add_listing():
         # breakpoint()
         # file = request.files["photo"]
 
-        output = upload_file_to_s3(file, S3_BUCKET)
+        # output = upload_file_to_s3(file, S3_BUCKET)
         # photos = str(output)
         # print("PHOTOS AFTER UPLOAD", photos)
 
