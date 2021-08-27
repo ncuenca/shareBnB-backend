@@ -48,7 +48,7 @@ with open('generator/users.csv', 'w') as users_csv:
             username=fake.unique.user_name(),
             first_name=fake.first_name(),
             last_name=fake.last_name(),
-            password='$2b$12$Q1PUFjhN/AWRQ21LbGYvjeLpZZB6lfZ1BPwifHALGO6oIbyC3CmJe',
+            password='$2b$12$kHeUjJysDxb9Spvj8IaAPumKaZMsGxgewGGLsdQcPDFzbbQ6P2Gae',
             phone=fake.unique.phone_number()
         ))
 
@@ -74,7 +74,7 @@ with open('generator/listings.csv', 'w') as listings_csv:
             price=fake.random_int(min=0, max=500),
             host_id=fake.random_int(min=1, max=NUM_USERS),
             details=fake.paragraph()[:MAX_DETAILS_LENGTH],
-            title=fake.sentence(nb_words=5),
+            title=fake.sentence(nb_words=3),
             address=fake.address(),
         ))
 
