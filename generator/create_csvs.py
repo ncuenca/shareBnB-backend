@@ -17,7 +17,7 @@ MAX_TITLE_LENGTH = 20
 MAX_DETAILS_LENGTH = 150
 
 NUM_USERS = 300
-NUM_MESSAGES = 500
+NUM_MESSAGES = 3000
 NUM_LISTINGS = 100
 NUM_LISTING_PHOTOS = 300
 
@@ -85,6 +85,4 @@ with open('generator/listing_photos.csv', 'w') as listing_photos_csv:
         listing_photos_writer.writerow(dict(
             listing_id=fake.random_int(min=1, max=NUM_LISTINGS),
             url = S3_LOCATION + choice(images)['Key']
-            # url=choice(image_urls)
-            # url=choice(images["results"])["urls"]["raw"]
         ))
