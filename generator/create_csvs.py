@@ -16,10 +16,10 @@ MAX_MESSAGE_LENGTH = 150
 MAX_TITLE_LENGTH = 20
 MAX_DETAILS_LENGTH = 150
 
-NUM_USERS = 100
+NUM_USERS = 30
 NUM_MESSAGES = 5000
-NUM_LISTINGS = 100
-NUM_LISTING_PHOTOS = 300
+NUM_LISTINGS = 50
+NUM_LISTING_PHOTOS = 150
 
 fake = Faker('en_US')
 
@@ -31,12 +31,6 @@ s3 = boto3.client(
 
 images_response = s3.list_objects(Bucket='mike-sharebnb-photos')
 images = images_response['Contents']
-
-image_urls = [
-    f"https://randomuser.me/api/portraits/{kind}/{i}.jpg"
-    for kind, count in [("lego", 10), ("men", 100), ("women", 100)]
-    for i in range(count)
-]
 
 with open('generator/users.csv', 'w') as users_csv:
     users_writer = csv.DictWriter(users_csv, fieldnames=USERS_CSV_HEADERS)
@@ -56,8 +50,9 @@ with open('generator/messages.csv', 'w') as messages_csv:
     messages_writer = csv.DictWriter(messages_csv, fieldnames=MESSAGES_CSV_HEADERS)
     messages_writer.writeheader()
     all_pairs = list(permutations(range(1, NUM_USERS + 1), 2))
+    random_pairs = [choice(all_pairs) for n in range(NUM_MESSAGES)]
 
-    for to_user_id, from_user_id in sample(all_pairs, NUM_MESSAGES):
+    for to_user_id, from_user_id in random_pairs:
         messages_writer.writerow(dict(
             text=fake.paragraph()[:MAX_MESSAGE_LENGTH],
             timestamp=get_random_datetime(),
