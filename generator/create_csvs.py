@@ -4,7 +4,8 @@ from itertools import permutations
 from faker import Faker
 from helpers import get_random_datetime
 import json
-import requests
+from my_secrets import S3_LOCATION, S3_KEY, S3_SECRET
+import boto3
 
 USERS_CSV_HEADERS = ['email', 'username', 'password', 'phone', 'first_name', 'last_name']
 MESSAGES_CSV_HEADERS = ['text', 'to_user_id', 'from_user_id', 'timestamp']
@@ -18,24 +19,18 @@ MAX_DETAILS_LENGTH = 150
 NUM_USERS = 300
 NUM_MESSAGES = 500
 NUM_LISTINGS = 100
-NUM_LISTING_PHOTOS = 500
+NUM_LISTING_PHOTOS = 300
 
 fake = Faker('en_US')
 
-# headers = {
-#     "Accept-Version": "v1",
-#     "Authorization": f"Client-ID YSZok6K_4a2oifZn54hCPg7qudyv_qG-P595MjRpcgI"
-# }
+s3 = boto3.client(
+   "s3",
+   aws_access_key_id=S3_KEY,
+   aws_secret_access_key=S3_SECRET
+)
 
-# payload = {
-#     "query": "backyard",
-#     "page": "5",
-#     "per_page": "10",
-# }
-
-# images_resp = requests.get("https://api.unsplash.com/search/photos", params=payload, headers=headers)
-# images = images_resp.json()
-# print(images)
+images_response = s3.list_objects(Bucket='mike-sharebnb-photos')
+images = images_response['Contents']
 
 image_urls = [
     f"https://randomuser.me/api/portraits/{kind}/{i}.jpg"
@@ -89,6 +84,7 @@ with open('generator/listing_photos.csv', 'w') as listing_photos_csv:
     for i in range(NUM_LISTING_PHOTOS): 
         listing_photos_writer.writerow(dict(
             listing_id=fake.random_int(min=1, max=NUM_LISTINGS),
-            url=choice(image_urls)
+            url = S3_LOCATION + choice(images)['Key']
+            # url=choice(image_urls)
             # url=choice(images["results"])["urls"]["raw"]
         ))
