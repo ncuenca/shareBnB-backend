@@ -1,3 +1,0 @@
-- complete restful routes
-- figure out image compression/downsizing on load/limit
-  size on submission
