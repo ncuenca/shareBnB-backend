@@ -255,7 +255,12 @@ class ListingPhoto(db.Model):
         nullable=False,
     )
 
-    url = db.Column(
+    small_photo_url = db.Column(
+        db.Text,
+        nullable=False,
+    )
+
+    large_photo_url = db.Column(
         db.Text,
         nullable=False,
     )
@@ -272,5 +277,6 @@ class ListingPhoto(db.Model):
         return {
             "id": self.id,
             "listing_id": self.listing_id,
-            "url": self.url,
+            "small_photo_url": self.small_photo_url,
+            "large_photo_url": self.large_photo_url,
         }

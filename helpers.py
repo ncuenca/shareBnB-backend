@@ -1,5 +1,5 @@
 import boto3, botocore
-from my_secrets import S3_KEY, S3_SECRET, S3_LOCATION
+from my_secrets import S3_KEY, S3_SECRET
 
 s3 = boto3.client(
    "s3",
@@ -21,7 +21,7 @@ def upload_file_to_s3(file, bucket_name, acl="public-read"):
             }
         )
 
-        return "{}{}".format(S3_LOCATION, file.filename)
+        return "{}{}".format('http://{}.s3.amazonaws.com/'.format(bucket_name), file.filename)
 
 
     except Exception as e:

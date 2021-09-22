@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from flask_cors import CORS
 # from werkzeug.security import secure_filename
 from helpers import upload_file_to_s3
-from my_secrets import S3_BUCKET
+from my_secrets import S3_SMALL_BUCKET, S3_LARGE_BUCKET
 import jwt
 
 
@@ -155,11 +155,14 @@ def add_listing():
     
     user = authenticateJWT()
     if user:
-        img_urls = []
+        small_img_urls = []
+        large_img_urls = []
         for key in request.files:
             file = request.files.get(key)
-            output = upload_file_to_s3(file, S3_BUCKET)
-            img_urls.append(output)
+            small_img_output = upload_file_to_s3(file, S3_SMALL_BUCKET)
+            small_img_urls.append(small_img_output)
+            large_img_output = upload_file_to_s3(file, S3_LARGE_BUCKET)
+            large_img_urls.append(large_img_output)
 
         title = request.form.getlist("title")[0]
         price = request.form.getlist("price")[0]
@@ -177,10 +180,11 @@ def add_listing():
         db.session.add(new_listing)
         db.session.commit()
 
-        for img_url in img_urls:
+        for i in range(len(small_img_urls)):
             new_listing_photo = ListingPhoto(
                 listing_id=new_listing.id,
-                url=img_url,
+                small_photo_url=small_img_urls[i],
+                large_photo_url=large_img_urls[i],
             )
             db.session.add(new_listing_photo)
             db.session.commit()
