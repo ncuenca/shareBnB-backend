@@ -9,7 +9,7 @@ ShareBnB allows users to sign-up or login. Authentication is implemented with Bc
 - add a listing and upload their own photos
 - send and receive private messages with other users
 
-You can view the deployed version of ShareBnB here.
+You can view the deployed version of ShareBnB [here](https://mikechang-sharebnb.surge.sh/).
 
 The fake users, user information, and listings are created with Faker and are not real people nor addresses. 
 
